@@ -12,7 +12,9 @@ VENDOR_DIR="$BUILD_DIR/vendor"
 mkdir -p $VENDOR_DIR
 INSTALL_DIR="$VENDOR_DIR/imagemagick"
 mkdir -p $INSTALL_DIR
-IMAGE_MAGICK_VERSION="${IMAGE_MAGICK_VERSION:-6.9.5-10}"
+DEPENCENCIES_DIR="${INSTALL_DIR}/depencencies"
+mkdir -p $DEPENCENCIES_DIR
+IMAGE_MAGICK_VERSION="7.0.7-4"
 CACHE_FILE="$CACHE_DIR/imagemagick-$IMAGE_MAGICK_VERSION.tar.gz"
 
 if [ ! -f $CACHE_FILE ]; then
@@ -32,6 +34,27 @@ if [ ! -f $CACHE_FILE ]; then
     exit 1;
   fi
   tar xvf $BUILD_DIR/$IMAGE_MAGICK_FILE | indent
+
+  echo "-----> Downloading dependencies"
+  # This section shamelessly stolen from https://github.com/weibeld/heroku-buildpack-graphviz/commit/8054a8ef7ce41952a54e6d55a6652509ba08dc8d?diff=unified
+
+  install() {
+    curl -s "$1" >pkg.deb
+    dpkg -x pkg.deb "$2"
+    rm pkg.deb
+  }
+
+  packages=(libgvc6_2.38.0-12ubuntu2_amd64.deb libcgraph6_2.38.0-12ubuntu2_amd64.deb libcdt5_2.38.0-12ubuntu2_amd64.deb libpathplan4_2.38.0-12ubuntu2_amd64.deb)
+
+  base_url="http://s3.amazonaws.com/imagemagick-dependencies"
+  echo "Installing the following packages:"
+  for p in "${packages[@]}"; do
+   echo "    * $p"
+   install "$base_url/$p" $DEPENCENCIES_DIR
+  done
+
+  echo "Dependencies installed at: $DEPENCENCIES_DIR"
+
 
   echo "-----> Building ImageMagick"
   cd $IMAGE_MAGICK_DIR
@@ -70,22 +93,8 @@ EOF
 echo "-----> Updating environment variables"
 PROFILE_PATH="$BUILD_DIR/.profile.d/imagemagick.sh"
 ACTUAL_INSTALL_PATH="$HOME/vendor/imagemagick"
+ACTUAL_DEPENDENCIES_PATH="${ACTUAL_INSTALL_PATH}/depencencies/usr"
 mkdir -p $(dirname $PROFILE_PATH)
-echo "export PATH=$ACTUAL_INSTALL_PATH/bin:\$PATH" >> $PROFILE_PATH
-echo "export LD_LIBRARY_PATH=$ACTUAL_INSTALL_PATH/lib:\$LD_LIBRARY_PATH" >> $PROFILE_PATH
+echo "export PATH=$ACTUAL_INSTALL_PATH/bin:$PATH" >> $PROFILE_PATH
+echo "export LD_LIBRARY_PATH=$ACTUAL_INSTALL_PATH/lib:$ACTUAL_DEPENDENCIES_PATH/lib:$LD_LIBRARY_PATH" >> $PROFILE_PATH
 echo "export MAGICK_CONFIGURE_PATH=$ACTUAL_INSTALL_PATH" >> $PROFILE_PATH
-
-# DOWNLOAD_URL="http://www.imagemagick.org/download/ImageMagick-6.9.2-0.tar.gz"
-
-# echo "DOWNLOAD_URL = " $DOWNLOAD_URL | indent
-
-# cd $BUILD_DIR
-# mkdir -p $VENDOR_DIR
-# cd $VENDOR_DIR
-# curl -L --silent $DOWNLOAD_URL | tar xz
-
-# echo "exporting PATH and LIBRARY_PATH" | indent
-# PROFILE_PATH="$BUILD_DIR/.profile.d/imagemagick.sh"
-# mkdir -p $(dirname $PROFILE_PATH)
-# echo 'export PATH="$PATH:$HOME/vendor/ImageMagick-6.9.2/bin"' >> $PROFILE_PATH
-# echo 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/vendor/ImageMagick-6.9.2/lib"' >> $PROFILE_PATH

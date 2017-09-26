@@ -1,4 +1,12 @@
 heroku-buildpack-imagemagick
 =================================
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for vendoring the ImageMagick binaries into your project.
+```
+heroku buildpacks:add --index 1 https://github.com/forever-inc/heroku-buildpack-imagemagick.git -a <app name>
+```
+
+```
+heroku buildpacks:remove https://github.com/forever-inc/heroku-buildpack-imagemagick.git -a <app name>
+```
+
+TODO: Add more documentation
