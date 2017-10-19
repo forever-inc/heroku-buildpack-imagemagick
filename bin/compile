@@ -76,6 +76,9 @@ else
   # cache exists, extract it
   echo "-----> Extracting ImageMagick $CACHE_FILE => $VENDOR_DIR"
   tar xzf $CACHE_FILE -C $VENDOR_DIR
+
+  ln -s "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type.xml" "$VENDOR_DIR/imagemagick/type.xml"
+  ln -s "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type-ghostscript.xml" "$VENDOR_DIR/imagemagick/type-ghostscript.xml"
 fi
 
 echo "-----> Writing policy file"
@@ -98,7 +101,3 @@ mkdir -p $(dirname $PROFILE_PATH)
 echo "export PATH=$ACTUAL_INSTALL_PATH/bin:$PATH" >> $PROFILE_PATH
 echo "export LD_LIBRARY_PATH=$ACTUAL_INSTALL_PATH/lib:$ACTUAL_DEPENDENCIES_PATH/lib:$LD_LIBRARY_PATH" >> $PROFILE_PATH
 echo "export MAGICK_CONFIGURE_PATH=$ACTUAL_INSTALL_PATH" >> $PROFILE_PATH
-
-cd $ACTUAL_INSTALL_PATH
-ln -s etc/ImageMagick-7/type.xml type.xml
-ln -s etc/ImageMagick-7/type-ghostscript.xml type-ghostscript.xml
