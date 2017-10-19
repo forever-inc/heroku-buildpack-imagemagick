@@ -77,8 +77,8 @@ else
   echo "-----> Extracting ImageMagick $CACHE_FILE => $VENDOR_DIR"
   tar xzf $CACHE_FILE -C $VENDOR_DIR
 
-  ln -s "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type.xml" "$VENDOR_DIR/imagemagick/type.xml"
-  ln -s "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type-ghostscript.xml" "$VENDOR_DIR/imagemagick/type-ghostscript.xml"
+  cp "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type.xml" "$VENDOR_DIR/imagemagick/type.xml"
+  cp "$VENDOR_DIR/imagemagick/etc/ImageMagick-7/type-ghostscript.xml" "$VENDOR_DIR/imagemagick/type-ghostscript.xml"
 fi
 
 echo "-----> Writing policy file"
